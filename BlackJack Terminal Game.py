@@ -21,15 +21,83 @@
 #dealer deals cards
 #players take their turns
 #dealer takes their turn
-
+from random import shuffle
 
 class Dollars(float):
 #This class returns a $ with a float
     def __repr__(self):
         return "$ " + super().__repr__()
 
+class Card:
+#This class defines values and methods of a card
+    def __init__(self, naipe, card_name):
+        if card_name in ["Jack", "King", "Queen"]:
+            self.value = 10
+        elif card_name in [2, 3, 4, 5, 6, 7, 8, 9, 10]:
+            self.value = card_name
+        else:
+            self.value = [1, 11]
+        self.card_name = card_name + " of " + naipe
+         
+
+class Player:
+#This class defines values and methods for a player
+    def __init__(self, name, wallet):
+        self.name = name
+        self.wallet = wallet
+        self.hand = []
+    def print_hand(self):
+        print("{}'s hand is: ".format(self.name))
+        for card in self.hand:
+            print(card.card_name)
+
+
+class Dealer:
+    def __init__(self):
+        self.deck = []
+        for naipe in ["hearts", "clubs", "spades", "clubs"]:
+            for name in ["Ace", 2, 3, 4, 5, 6, 7, 8, 9, 10, "Jack", "King", "Queen"]:
+                self.deck.append(Card(naipe, name))
+        shuffle(self.deck)
+
+        self.hand = []
+
+    def deal(self, target):
+        #remove card from self.deck and put it in target.hand
+        target.hand.append(self.deck.pop())
+    
+    def print_hand_stage1(self):
+        print("The Dealer's hand is {}".format(self.hand[0].card_name))
+    
+    def print_hand_stage2(self):
+        print("The Dealer's Hand is: ")
+        for card in self.hand:
+            print(card.card_name)
+
+
+class Wallet:
+#This class defines values and methods for a wallet
+    def __init__(self, amount):
+        self.amount = amount
+
+class Table:
+    def __init__(self, dealer, players):
+        self.players = players
+        self.dealer = dealer
+    def show_table(self):
+        print("Dealer's Hand: " + dealer.hand[0] + )
+
+    
+
+
 print("BlackJack Terminal Game 1.0")
 #Main Game Loop
+player1 = Player("John", 100)
+dealer = Dealer()
+
+#possible multiple players later
+#players = [player1]
+
 finish_game = False
 while not finish_game:
     #does player want to continue the game?
@@ -45,7 +113,18 @@ while not finish_game:
     
     if finish_game == True:
         break
-                
+    #dealer deals initial hands on
+    for counter in range(2):
+        #for player in players:
+        dealer.deal(player1)
+        dealer.deal(dealer)
+    #each player takes their turn    
+    dealer.print_hand_stage1()    
+    end_turn = False
+    while not end_turn:
+        player1.print_hand()
+        input("What do you want to do? (1: Hit) (2: Stay) (3: Double Down)")
+
+        
     #continue
-    #stop
-        finish_game = True
+    
