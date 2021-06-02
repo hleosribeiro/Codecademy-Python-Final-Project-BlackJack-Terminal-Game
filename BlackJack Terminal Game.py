@@ -23,10 +23,13 @@
 #dealer takes their turn
 from random import shuffle
 
-class Dollars(float):
-#This class returns a $ with a float
-    def __repr__(self):
-        return "$ " + super().__repr__()
+# class Dollars(float):
+# #This class returns a $ with a float
+#     def __repr__(self):
+#         return "$ " + super().__repr__()
+
+def print_divider():
+    print("-----------------------------------------------------------------------------")
 
 class Card:
 #This class defines values and methods of a card
@@ -37,7 +40,7 @@ class Card:
             self.value = card_name
         else:
             self.value = [1, 11]
-        self.card_name = card_name + " of " + naipe
+        self.card_name = str(card_name) + " of " + naipe
          
 
 class Player:
@@ -47,19 +50,19 @@ class Player:
         self.wallet = wallet
         self.hand = []
     def print_hand(self):
+        print_divider()
         print("{}'s hand is: ".format(self.name))
         for card in self.hand:
             print(card.card_name)
+        print_divider()
 
-
-class Dealer:
+class Dealer():
     def __init__(self):
         self.deck = []
         for naipe in ["hearts", "clubs", "spades", "clubs"]:
             for name in ["Ace", 2, 3, 4, 5, 6, 7, 8, 9, 10, "Jack", "King", "Queen"]:
                 self.deck.append(Card(naipe, name))
         shuffle(self.deck)
-
         self.hand = []
 
     def deal(self, target):
@@ -67,12 +70,16 @@ class Dealer:
         target.hand.append(self.deck.pop())
     
     def print_hand_stage1(self):
-        print("The Dealer's hand is {}".format(self.hand[0].card_name))
+        print_divider()
+        print("The Dealer's hand is: \n{}".format(self.hand[0].card_name))
+        print_divider()
     
-    def print_hand_stage2(self):
+    def print_hand(self):
+        print_divider()
         print("The Dealer's Hand is: ")
         for card in self.hand:
             print(card.card_name)
+        print_divider()
 
 
 class Wallet:
@@ -85,9 +92,7 @@ class Table:
         self.players = players
         self.dealer = dealer
     def show_table(self):
-        print("Dealer's Hand: " + dealer.hand[0] + )
-
-    
+        print("Dealer's Hand: " + dealer.hand[0])    
 
 
 print("BlackJack Terminal Game 1.0")
@@ -97,6 +102,8 @@ dealer = Dealer()
 
 #possible multiple players later
 #players = [player1]
+
+
 
 finish_game = False
 while not finish_game:
@@ -109,21 +116,43 @@ while not finish_game:
             finish_game = True
             break
         else:
+            print_divider()
             break
     
     if finish_game == True:
         break
+
     #dealer deals initial hands on
     for counter in range(2):
         #for player in players:
         dealer.deal(player1)
         dealer.deal(dealer)
-    #each player takes their turn    
-    dealer.print_hand_stage1()    
+    
+    #each player takes their turn 
+    dealer.print_hand_stage1()
+    
     end_turn = False
     while not end_turn:
         player1.print_hand()
-        input("What do you want to do? (1: Hit) (2: Stay) (3: Double Down)")
+        try:
+            decision = int(input("What do you want to do? (1: Hit) (2: Stay) (3: Double Down) (4: Split) (5: Surrender) (6: Insurance)\n"))
+        except:
+            decision = "Wabba wabba"
+        if decision == 1:
+            print("not implemented yet")
+        elif decision == 2:
+            print("{} stays".format(player1.name))
+            end_turn = True
+        elif decision == 3:
+            print("not implemented yet")
+        elif decision == 4:
+            print("Not implemented yet")
+        elif decision == 5:
+            print("Not Implemented Yet")
+        elif decision == 6:
+            print("Not Implemented yet")
+        else:
+            print("Try again")
 
         
     #continue
