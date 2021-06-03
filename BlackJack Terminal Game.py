@@ -23,6 +23,7 @@
 #dealer takes their turn
 from random import shuffle
 from itertools import product as comblista
+from os import system
 
 # class Dollars(float):
 # #This class returns a $ with a float
@@ -33,6 +34,10 @@ def print_divider():
     print("------------------------------------------------------------")
     print("♣♤♥♦  ♣♤♥♦  ♣♤♥♦  ♣♤♥♦  ♣♤♥♦  ♣♤♥♦  ♣♤♥♦  ♣♤♥♦  ♣♤♥♦  ♣♤♥♦")
     print("------------------------------------------------------------")
+
+def clear():
+    _ = system('cls')
+    return _
 
 class Hand:
     def __init__(self):
@@ -72,6 +77,9 @@ class Card:
         else:
             self.value = [1, 11]
         self.card_name = str(card_name) + " of " + naipe
+    
+    def __repr__(self):
+        return self.card_name
          
 
 class Player:
@@ -123,14 +131,16 @@ class Wallet:
 #         self.dealer = dealer
 #     def show_table(self):
 #         print("Dealer's Hand: " + dealer.hand[0])    
-
+print_divider()
 print("BlackJack Terminal Game 1.0")
+print_divider()
 #Main Game Loop
-player1 = Player("John", 100)
-dealer = Dealer()
-
 #possible multiple players later
 #players = [player1]
+player_name = input("What is the player's name? \n")
+print("{}'s wallet has $100")
+player1 = Player(player_name, 100)
+current_bet = 0
 
 finish_game = False
 while not finish_game:
@@ -138,12 +148,26 @@ while not finish_game:
     while True:
 
         wants_to_play = input("Do you want to play a hand of blackjack? (y,n)\n")
+        clear()
         if wants_to_play not in ["y", "n", "Y", "N"]:
             print("Please answer \"y\" or \"n\"")
         elif wants_to_play in ["n", "N"]:
             finish_game = True
             break
         else:
+            
+            player1.hand = Hand()
+            player1.wallet += current_bet
+            current_bet = 0
+            dealer = Dealer()
+
+            while True:
+                clear()
+                pot = float(input("Enter bet (current funds: {}): \n".format(player1.wallet)))
+                if pot <= player1.wallet:
+                    player1.wallet -= pot
+                    break                    
+
             print_divider()
             break
     
@@ -157,32 +181,68 @@ while not finish_game:
     
     #each player takes their turn 
     dealer.print_hand_stage1()
-    
+    busted = False
     end_turn = False
     while not end_turn:
-        player1.print_hand()
-        print("hand value: {}".format(player1.hand.get_hand_value()))
-        decision = input("What do you want to do? (1: Hit) (2: Stay) (3: Double Down) (4: Split) (5: Surrender) (6: Insurance)\n")
-        if decision == "1":
-            while True:
-                dealer.deal(player1)
-                player1.print_hand()
-                print("hand value {}".format(player1.hand.get_hand_value()))
-                input("waiting")
-        elif decision == "2":
-            print("{} stays".format(player1.name))
+        #check for blackjack
+        if player1.hand.get_hand_value() == 21:
+            print("BlackJack!")
+            print_divider()
             end_turn = True
-        elif decision == "3":
-            print("not implemented yet")
-        elif decision == "4":
-            print("Not implemented yet")
-        elif decision == "5":
-            print("Not Implemented Yet")
-        elif decision == "6":
-            print("Not Implemented yet")
+        #check for bust
+        elif player1.hand.get_hand_value() > 21:            
+            player1.print_hand()
+            busted = True
+            print("Busted!")
+            print_divider()
+            end_turn = True
+        #continue playing
         else:
-            print("Try again")
+            player1.print_hand()
+            # print(dealer.deck)      
+            decision = input("What do you want to do? (1: Hit) (2: Stay) (3: Double Down) (4: Split) (5: Surrender) (6: Insurance)\n")
+            clear()
+            if decision == "1":
+                print("{} hits".format(player1.name))
+                dealer.deal(player1)            
+            elif decision == "2":
+                print("{} stays".format(player1.name))
+                end_turn = True
+            elif decision == "3":
+                print("not implemented yet")
+            elif decision == "4":
+                print("Not implemented yet")
+            elif decision == "5":
+                print("Not Implemented Yet")
+            elif decision == "6":
+                print("Not Implemented yet")
+            else:
+                print("Try again")
+    
+    while dealer.hand.get_hand_value() < 17:
+        dealer.deal(dealer)
+    dealer_hand_value = dealer.hand.get_hand_value()
+    player1_hand_value = player1.hand.get_hand_value()
 
+    if busted:        
+        print("Dealer wins")
+        input("Press Any Key to Continue")
         
-    #continue
+    elif dealer_hand_value > 21 or dealer_hand_value < player1_hand_value:
+        current_bet = pot * 2        
+        print("Dealer hand value is {} \n {} hand value is {}".format(dealer.hand.get_hand_value(), player1.name, player1.hand.get_hand_value()))
+        print("{} wins the hand!".format(player1.name))        
+        input("Press Any Key to Continue")  
+
+    elif dealer_hand_value == player1_hand_value:
+        current_bet = pot        
+        print("Dealer hand value is {} \n {} hand value is {}".format(dealer.hand.get_hand_value(), player1.name, player1.hand.get_hand_value()))
+        print("It's a draw!")
+        input("Press Any Key to Continue")
+        
+    elif dealer_hand_value > player1_hand_value:        
+        print("Dealer hand value is {} \n {} hand value is {}".format(dealer.hand.get_hand_value(), player1.name, player1.hand.get_hand_value()))
+        print("Dealer wins")
+        input("Press Any Key to Continue")
+        
     
