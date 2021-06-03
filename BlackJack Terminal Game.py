@@ -11,10 +11,6 @@
 #hit - the player asks for another card
 #stay - the player ends their turn
 #double down - doubles their bet, a hit and a stay.
-#split - if the player has two cards of the same value, they can split it in two hands, doubling their bet and playing two hands
-#surrender - the player gives up the hand and pays half his bet
-#insurance - if the dealer open card is an ace the player can take half of his bet off the table
-#if dealer hand totals to less than 17 he has to hit
 
 #basic game flow
 #players place bets
@@ -24,11 +20,8 @@
 from random import shuffle
 from itertools import product as comblista
 from os import system
+from time import sleep
 
-# class Dollars(float):
-# #This class returns a $ with a float
-#     def __repr__(self):
-#         return "$ " + super().__repr__()
 
 def print_divider():
     print("------------------------------------------------------------")
@@ -125,20 +118,15 @@ class Wallet:
     def __init__(self, amount):
         self.amount = amount
 
-# class Table:
-#     def __init__(self, dealer, players):
-#         self.players = players
-#         self.dealer = dealer
-#     def show_table(self):
-#         print("Dealer's Hand: " + dealer.hand[0])    
+#header
+clear()   
 print_divider()
 print("BlackJack Terminal Game 1.0")
 print_divider()
+
 #Main Game Loop
-#possible multiple players later
-#players = [player1]
 player_name = input("What is the player's name? \n")
-print("{}'s wallet has $100")
+print("{}'s wallet has $100".format(player_name))
 player1 = Player(player_name, 100)
 current_bet = 0
 
@@ -182,12 +170,14 @@ while not finish_game:
     #each player takes their turn 
     dealer.print_hand_stage1()
     busted = False
+    blackjack = False
     end_turn = False
     while not end_turn:
         #check for blackjack
         if player1.hand.get_hand_value() == 21:
             print("BlackJack!")
             print_divider()
+            blackjack = True
             end_turn = True
         #check for bust
         elif player1.hand.get_hand_value() > 21:            
@@ -198,35 +188,53 @@ while not finish_game:
             end_turn = True
         #continue playing
         else:
-            player1.print_hand()
-            # print(dealer.deck)      
-            decision = input("What do you want to do? (1: Hit) (2: Stay) (3: Double Down) (4: Split) (5: Surrender) (6: Insurance)\n")
+            player1.print_hand()                  
+            decision = input("What do you want to do? (1: Hit) (2: Stay) (3: Double Down)\n")
             clear()
             if decision == "1":
                 print("{} hits".format(player1.name))
-                dealer.deal(player1)            
+                dealer.deal(player1)
+                print("{} drew the {}".format(player1.name, player1.hand.cards_in_hand[-1]))
+                sleep(1)            
             elif decision == "2":
                 print("{} stays".format(player1.name))
+                sleep(1)
                 end_turn = True
             elif decision == "3":
-                print("not implemented yet")
-            elif decision == "4":
-                print("Not implemented yet")
-            elif decision == "5":
-                print("Not Implemented Yet")
-            elif decision == "6":
-                print("Not Implemented yet")
+                if player1.wallet < pot:
+                    print("You can't double down(insufficient funds)")
+                else:
+                    player1.wallet -= pot
+                    pot *= 2
+                    print("Remaining Funds: {} \n New bet: {}".format(player1.wallet, pot))
+                    input("")                
+            # elif decision == "4":
+            #     print("Not implemented yet")
+            # elif decision == "5":
+            #     print("Not Implemented Yet")
+            # elif decision == "6":
+            #     print("Not Implemented yet")
             else:
                 print("Try again")
     
-    while dealer.hand.get_hand_value() < 17:
+    
+    
+    while dealer.hand.get_hand_value() < 17 and not busted and not blackjack:
+        print("The dealer will now draw")
+        sleep(1)
         dealer.deal(dealer)
+        print("The dealer drew the {}".format(dealer.hand.cards_in_hand[-1]))
+        sleep(1)
+        
     dealer_hand_value = dealer.hand.get_hand_value()
     player1_hand_value = player1.hand.get_hand_value()
 
     if busted:        
         print("Dealer wins")
         input("Press Any Key to Continue")
+    elif blackjack:
+        current_bet = pot * 2.5
+        print("{} wins!".format(player1.name))
         
     elif dealer_hand_value > 21 or dealer_hand_value < player1_hand_value:
         current_bet = pot * 2        
